@@ -6,33 +6,29 @@
 <title>Sphere · Portals</title>
 <style>
   :root{--bg:#0a0b0c;--fg:#e8e8e8;--muted:#a0a5aa;--line:#15171a;--glass:rgba(12,13,14,.55)}
-  *{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);
     font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;letter-spacing:.01em}
-  header{position:fixed;left:16px;right:16px;top:16px;display:flex;justify-content:space-between;
-    align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;
+  header{position:fixed;left:16px;right:16px;top:16px;display:flex;justify-content:space-between;align-items:center;
+    padding:10px 12px;border:1px solid var(--line);border-radius:12px;
     background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:10}
   .wordmark{font-weight:700;letter-spacing:.12em}
   .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid #2a2e33;border-radius:999px;
     padding:6px 10px;background:var(--glass);font-size:12px}
-  .wrap{height:100%;display:grid;grid-template-columns:1fr 400px}
-  aside{border-left:1px solid var(--line);background:var(--glass);backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);padding:16px;overflow:auto}
-  .feed{display:grid;gap:10px}.card{border:1px solid #1b1e22;border-radius:10px;padding:12px;background:rgba(16,17,19,.6)}
-  .card h3{margin:0 0 6px 0;font-size:14px}.card p{margin:0;color:#cfd3d8;font-size:13px;line-height:1.5}
-  .meta{font-size:11px;color:#9aa1a8;margin-top:6px;text-transform:uppercase}
   .stage{position:relative;height:100vh;overflow:hidden}
-  .ring{position:absolute;left:50%;top:50%;transform-style:preserve-3d;transform:translate(-50%,-50%) perspective(1200px) rotateX(18deg)}
+  .ring{position:absolute;left:50%;top:50%;transform-style:preserve-3d;
+    transform:translate(-50%,-50%) perspective(1200px) rotateX(18deg)}
   .portal{position:absolute;width:120px;height:120px;border-radius:50%;border:1px solid #2a2f34;
-    background:radial-gradient(60% 60% at 40% 35%, rgba(200,208,216,.18), rgba(80,84,92,.08) 60%, rgba(0,0,0,0) 61%);
+    background:radial-gradient(60% 60% at 40% 35%, rgba(200,208,216,.18), rgba(80,84,92,.08) 60%, rgba(0,0,0,0) 61%),
+              linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
     box-shadow:inset 0 0 0 1px rgba(255,255,255,.02), 0 10px 40px rgba(0,0,0,.25);
-    display:flex;align-items:center;justify-content:center; text-transform:uppercase; font-size:11px;
-    letter-spacing:.12em; transition:transform .2s ease, filter .2s ease, box-shadow .2s ease;
-    backdrop-filter:blur(2px); color:#d9dde2; cursor:pointer}
+    display:flex;align-items:center;justify-content:center;text-transform:uppercase;font-size:11px;letter-spacing:.12em;
+    transition:transform .2s ease, filter .2s ease, box-shadow .2s ease; backdrop-filter:blur(2px); color:#d9dde2; cursor:pointer}
   .portal:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.08), 0 18px 70px rgba(0,0,0,.38); filter:brightness(1.06)}
   .glyph{font-size:28px;opacity:.9}
   .hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:12px;color:#9aa1a8;
     letter-spacing:.12em;text-transform:uppercase;background:var(--glass);padding:8px 10px;border:1px solid var(--line);border-radius:10px}
-  @media (max-width:980px){.wrap{grid-template-columns:1fr}.hint{display:none}aside{display:none}}
+  @media (max-width:980px){.hint{display:none}}
 </style>
 </head>
 <body>
@@ -41,28 +37,30 @@
   <div class="chip"><span id="status">выбери сервис → тап</span></div>
 </header>
 
-<div class="wrap">
-  <div class="stage" id="stage">
-    <div class="ring" id="ring"></div>
-    <div class="hint">Поверни/двигай экран → выбери «портал». Тап — открыть приложение / веб.</div>
-  </div>
-  <aside>
-    <div class="feed" id="feed"></div>
-  </aside>
+<div class="stage" id="stage">
+  <div class="ring" id="ring"></div>
+  <div class="hint">Поверни/двигай экран → выбери «портал». Тап — откроется приложение / веб.</div>
 </div>
 
 <script>
-/* Сервисы + deep-link + веб-фолбэк */
+/* --- Сервисы: deep-link (если приложение установлено) + веб-фолбэк --- */
 const apps=[
-  {id:'ig', name:'Instagram', glyph:'◻︎', app:'instagram://app', web:'https://instagram.com'},
-  {id:'yt', name:'YouTube',   glyph:'▶︎', app:'youtube://',      web:'https://youtube.com'},
-  {id:'tg', name:'Telegram',  glyph:'➤', app:'tg://',            web:'https://t.me'},
-  {id:'x',  name:'X',         glyph:'╳', app:'twitter://',       web:'https://x.com'},
-  {id:'tt', name:'TikTok',    glyph:'♪', app:'snssdk1128://',    web:'https://tiktok.com'},
-  {id:'bm', name:'Bookmate',  glyph:'Ƀ', app:'bookmate://',      web:'https://bookmate.com'}
+  {id:'ig', name:'Instagram', glyph:'◻︎', app:'instagram://app',             web:'https://instagram.com'},
+  {id:'yt', name:'YouTube',   glyph:'▶︎', app:'youtube://',                  web:'https://youtube.com'},
+  {id:'tg', name:'Telegram',  glyph:'➤', app:'tg://',                        web:'https://t.me'},
+  {id:'x',  name:'X',         glyph:'╳', app:'twitter://',                   web:'https://x.com'},
+  {id:'tt', name:'TikTok',    glyph:'♪', app:'snssdk1128://',               web:'https://tiktok.com'},
+  {id:'vk', name:'VK',        glyph:'ВК', app:'vk://',                       web:'https://vk.com'},
+  {id:'wa', name:'WhatsApp',  glyph:'✆', app:'whatsapp://send',             web:'https://wa.me'},
+  {id:'ms', name:'Messenger', glyph:'✉︎', app:'fb-messenger://',            web:'https://m.me'},
+  {id:'fb', name:'Facebook',  glyph:'ƒ',  app:'fb://',                       web:'https://facebook.com'},
+  {id:'sc', name:'Snapchat',  glyph:'👻', app:'snapchat://',                 web:'https://snapchat.com'},
+  {id:'th', name:'Threads',   glyph:'@',  app:'threads://',                  web:'https://www.threads.net'},
+  {id:'dc', name:'Discord',   glyph:'☰', app:'discord://',                   web:'https://discord.com/app'},
+  {id:'rd', name:'Reddit',    glyph:'⬤', app:'reddit://',                    web:'https://reddit.com'}
 ];
 
-/* Кольцо порталов (никаких внешних картинок) */
+/* --- Сцена: кольцо порталов, без внешних картинок --- */
 const ring=document.getElementById('ring'); const portals=[];
 (function buildRing(){
   const n=apps.length, R=280;
@@ -70,9 +68,9 @@ const ring=document.getElementById('ring'); const portals=[];
     const p=document.createElement('div'); p.className='portal'; p.dataset.id=apps[i].id;
     p.innerHTML=`<div class="glyph">${apps[i].glyph}</div>`;
     const ang=(i/n)*Math.PI*2, x=Math.cos(ang)*R, y=Math.sin(ang)*R*0.5, z=Math.sin(ang)*60;
-    p.style.transform=`translate3d(${x}px,${y}px,${z}px)`; ring.appendChild(p);
+    p.style.transform=`translate3d(${x}px,${y}px,${z}px)`;
     p.addEventListener('click',()=>openTarget(apps[i]));
-    portals.push(p);
+    ring.appendChild(p); portals.push(p);
   }
 })();
 
@@ -83,24 +81,13 @@ document.addEventListener('mousemove',e=>{
   ring.style.transform=`translate(-50%,-50%) perspective(1200px) rotateX(${18+ry}deg) rotateY(${rx}deg)`;
 },{passive:true});
 
-/* Открытие: сначала схема (если есть апп), затем через 700мс — веб-фолбэк */
+/* Открытие: сначала deep-link, через 700мс — веб-фолбэк */
 function openTarget(app){
   document.getElementById('status').textContent=`открываю: ${app.name}`;
-  addCard('Открытие', `Пробую нативное приложение ${app.name}. Если его нет — откроется веб.`, app.name);
-  const t0=Date.now(); const timeout=700; // iOS-safe задержка
-  const timer=setTimeout(()=>{ if(Date.now()-t0>=timeout-10) window.location.href=app.web; }, timeout);
-  try{ window.location.href=app.app; }catch(e){ clearTimeout(timer); window.location.href=app.web; }
+  const t0=Date.now(), timeout=700;
+  const timer=setTimeout(()=>{ if(Date.now()-t0>=timeout-10) location.href=app.web; }, timeout);
+  try{ location.href=app.app; }catch{ clearTimeout(timer); location.href=app.web; }
 }
-
-/* Лаконичная мета-лента справа */
-const feed=document.getElementById('feed');
-function addCard(title, body, meta){
-  const c=document.createElement('div'); c.className='card';
-  c.innerHTML=`<h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p><div class="meta">${escapeHtml(meta||'')}</div>`;
-  feed.prepend(c);
-}
-addCard('Готово','Выбирай Instagram / YouTube / Telegram и т.д. Никаких профилей и «Reduce Protections».','система');
-function escapeHtml(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&','<':'&lt;','>':'&gt;'}[c]))}
 </script>
 </body>
 </html>
